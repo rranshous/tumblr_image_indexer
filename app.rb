@@ -49,6 +49,21 @@ Thread.new do
   end
 end
 
+get '/' do
+  image_to_post.keys.map do |image_name|
+    "http://#{request.host}/#{Base64.urlsafe_encode64(image_name)}"
+  end.to_json
+end
+
+get '/links' do
+  content_type :html
+  image_to_post.keys.map do |image_name|
+    "http://#{request.host}:#{request.port}/#{Base64.urlsafe_encode64(image_name)}"
+  end.reduce("") do |acc, url|
+    acc + "<a href='#{url}/html'>#{url}/html</a><br/>"
+  end
+end
+
 get '/:image_name_encoded/html' do |image_href_encoded|
   image_href = Base64.urlsafe_decode64 image_href_encoded
   content_type :html
