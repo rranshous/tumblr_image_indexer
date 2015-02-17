@@ -72,7 +72,13 @@ end
 
 get '/browse' do
   content_type :html
-  r = ""
+  r = """
+  <style>
+    .blog { margin-left: 10px; }
+    .post { margin-left: 20px; }
+    .image { margin-left: 30px; }
+  </style>
+  """
   blog_to_posts.keys.each do |blog|
     r += "<div class='blog'><a href='#{blog}'>#{blog}</a></div>"
     blog_to_posts[blog].each do |post|
