@@ -47,6 +47,20 @@ Thread.new do
   end
 end
 
+get '/:image_name_encoded/html' do |image_href_encoded|
+  image_href = Base64.urlsafe_decode64 image_href_encoded
+  content_type :html
+  puts "HREF: #{image_href}"
+  post_href = image_to_post[image_href]
+  blog_href = post_to_blog[post_href]
+  """
+  <h1>#{image_href}</h1>
+  <h2>#{post_href}</h2>
+  <h3>#{blog_href}</h3>
+  <img src='http://event_image_stasher/#{image_href}'/>
+  """
+end
+
 get '/:image_name_encoded' do |image_href_encoded|
   image_href = Base64.urlsafe_decode64 image_href_encoded
   content_type :json
@@ -55,3 +69,4 @@ get '/:image_name_encoded' do |image_href_encoded|
   blog_href = post_to_blog[post_href]
   { href: image_href, post: { href: post_href }, blog: { href: blog_href }}.to_json
 end
+
