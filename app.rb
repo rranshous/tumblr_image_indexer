@@ -119,3 +119,7 @@ get '/:image_name_encoded' do |image_href_encoded|
   { href: image_href, post: { href: post_href }, blog: { href: blog_href }}.to_json
 end
 
+get '/favicon.ico' do
+  ''
+end
+
