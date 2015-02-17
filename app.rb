@@ -8,6 +8,8 @@ require 'base64'
 
 image_to_post = ThreadSafe::Cache.new
 post_to_blog = ThreadSafe::Cache.new
+blog_to_posts = ThreadSafe::Cache.new
+post_to_images = ThreadSafe::Cache.new
 
 IMAGE_STASHER_URL = ENV['IMAGE_STASHER_URL']
 
@@ -40,12 +42,14 @@ Thread.new do
   events_with_sleep(eventstore, 'new-images', 0, 100).each do |event|
     puts "image EVENT: #{event[:body]['href']}"
     image_to_post[event[:body]['href']] = event[:body]['post']['href']
+    (post_to_images[event[:body]['post']['href']] ||= []) << event[:body]['href']
   end
 end
 
 Thread.new do
   events_with_sleep(eventstore, 'new-posts', 0, 100).each do |event|
     post_to_blog[event[:body]['href']] = event[:body]['blog']['href']
+    (blog_to_posts[event[:body]['blog']['href']] ||= []) << event[:body]['href']
   end
 end
 
@@ -64,6 +68,26 @@ get '/links' do
   end.reduce("") do |acc, url|
     acc + "<a href='#{url}/html'>#{url}/html</a><br/>"
   end
+end
+
+get '/browse' do
+  content_type :html
+  r = ""
+  blog_to_posts.keys.each do |blog|
+    r += "<div class='blog'><a href='#{blog}'>#{blog}</a></div>"
+    blog_to_posts[blog].each do |post|
+      r += "<div class='post'><a href='#{post}'>#{post}</a></div>"
+      if post_to_images[post].nil?
+        puts "MISSING: #{post}"
+        next
+      end
+      post_to_images[post].each do |image|
+        url = "http://#{request.host}:#{request.port}/#{Base64.urlsafe_encode64(image)}/html"
+        r += "<div class='image'><a href='#{url}'>#{image}</a></div>"
+      end
+    end
+  end
+  r
 end
 
 get '/:image_name_encoded/html' do |image_href_encoded|
