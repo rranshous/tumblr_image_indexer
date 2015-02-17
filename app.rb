@@ -57,7 +57,7 @@ get '/:image_name_encoded/html' do |image_href_encoded|
   <h1>#{image_href}</h1>
   <h2>#{post_href}</h2>
   <h3>#{blog_href}</h3>
-  <img src='http://event_image_stasher/#{image_href}'/>
+  <img src='http://event_image_stasher.slag.local/#{image_href_encoded}'/>
   """
 end
 
