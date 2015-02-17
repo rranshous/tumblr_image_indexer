@@ -16,7 +16,7 @@ IMAGE_STASHER_URL = ENV['IMAGE_STASHER_URL']
 CONNSTRING = ENV['EVENTSTORE_URL'] || 'http://0.0.0.0:2113'
 eventstore = EventStore::Client.new(CONNSTRING)
 
-def events_with_sleep eventstore, stream, start_at, set_size, sleep_time=10
+def events_with_sleep eventstore, stream, start_at, set_size, sleep_time=100
   Enumerator.new do |yielder|
     start_at = 0
     last_start_at = nil
@@ -71,6 +71,7 @@ get '/links' do
 end
 
 get '/browse' do
+  etag image_to_post.keys.length
   content_type :html
   r = """
   <style>
