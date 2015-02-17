@@ -2,7 +2,6 @@ require 'sinatra'
 require 'thread_safe'
 require 'eventstore'
 require 'base64'
-require 'pry'
 
 # we want to be able to answer the question
 #  what blog + post did this image come from?
