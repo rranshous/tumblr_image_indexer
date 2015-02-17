@@ -110,6 +110,10 @@ get '/:image_name_encoded/html' do |image_href_encoded|
   """
 end
 
+get '/favicon.ico' do
+  ''
+end
+
 get '/:image_name_encoded' do |image_href_encoded|
   image_href = Base64.urlsafe_decode64 image_href_encoded
   content_type :json
@@ -117,9 +121,5 @@ get '/:image_name_encoded' do |image_href_encoded|
   post_href = image_to_post[image_href]
   blog_href = post_to_blog[post_href]
   { href: image_href, post: { href: post_href }, blog: { href: blog_href }}.to_json
-end
-
-get '/favicon.ico' do
-  ''
 end
 
