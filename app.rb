@@ -9,6 +9,8 @@ require 'base64'
 image_to_post = ThreadSafe::Cache.new
 post_to_blog = ThreadSafe::Cache.new
 
+IMAGE_STASHER_URL = ENV['IMAGE_STASHER_URL']
+
 CONNSTRING = ENV['EVENTSTORE_URL'] || 'http://0.0.0.0:2113'
 eventstore = EventStore::Client.new(CONNSTRING)
 
@@ -57,7 +59,7 @@ get '/:image_name_encoded/html' do |image_href_encoded|
   <h1>#{image_href}</h1>
   <h2>#{post_href}</h2>
   <h3>#{blog_href}</h3>
-  <img src='http://event_image_stasher.slag.local/#{image_href_encoded}'/>
+  <img src='#{IMAGE_STASHER_URL}/#{image_href_encoded}'/>
   """
 end
 
