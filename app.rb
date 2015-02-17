@@ -50,12 +50,14 @@ Thread.new do
 end
 
 get '/' do
+  etag image_to_post.keys.length
   image_to_post.keys.map do |image_name|
     "http://#{request.host}/#{Base64.urlsafe_encode64(image_name)}"
   end.to_json
 end
 
 get '/links' do
+  etag image_to_post.keys.length
   content_type :html
   image_to_post.keys.map do |image_name|
     "http://#{request.host}:#{request.port}/#{Base64.urlsafe_encode64(image_name)}"
