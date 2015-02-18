@@ -79,10 +79,11 @@ get '/browse' do
     .post { margin-left: 20px; }
     .image { margin-left: 30px; }
   </style>
+  TOTAL IMAGES: #{image_to_post.keys.length}
   """
   blog_to_posts.keys.each do |blog|
     r += "<div class='blog'><a href='#{blog}'>#{blog}</a></div>"
-    blog_to_posts[blog].sort_by{|u|u.split('/').last.to_i}.each do |post|
+    blog_to_posts[blog].each do |post|
       r += "<div class='post'><a href='#{post}'>#{post}</a></div>"
       if post_to_images[post].nil?
         puts "MISSING: #{post}"
