@@ -40,7 +40,7 @@ Thread.abort_on_exception = true
 
 Thread.new do
   events_with_sleep(eventstore, 'new-images', 0, 100).each do |event|
-    puts "image EVENT: #{event[:body]['href']}"
+    puts "image EVENT: #{event[:body]['href']} :: #{event[:id]}"
     image_to_post[event[:body]['href']] = event[:body]['post']['href']
     (post_to_images[event[:body]['post']['href']] ||= []) << event[:body]['href']
   end
@@ -55,16 +55,16 @@ end
 
 get '/' do
   etag image_to_post.keys.length
-  image_to_post.keys.map do |image_name|
-    "http://#{request.host}/#{Base64.urlsafe_encode64(image_name)}"
+  image_to_post.keys.map do |image_href|
+    "http://#{request.host}/#{Base64.urlsafe_encode64(image_href)}"
   end.to_json
 end
 
 get '/links' do
   etag image_to_post.keys.length
   content_type :html
-  image_to_post.keys.map do |image_name|
-    "http://#{request.host}:#{request.port}/#{Base64.urlsafe_encode64(image_name)}"
+  image_to_post.keys.map do |image_href|
+    "http://#{request.host}:#{request.port}/#{Base64.urlsafe_encode64(image_href)}"
   end.reduce("") do |acc, url|
     acc + "<a href='#{url}/html'>#{url}/html</a><br/>"
   end
@@ -98,7 +98,16 @@ get '/browse' do
   r
 end
 
-get '/:image_name_encoded/html' do |image_href_encoded|
+get '/:image_href_encoded' do |image_href_encoded|
+  image_href = Base64.urlsafe_decode64 image_href_encoded
+  content_type :json
+  puts "HREF: #{image_href}"
+  post_href = image_to_post[image_href]
+  blog_href = post_to_blog[post_href]
+  { href: image_href, post: { href: post_href }, blog: { href: blog_href }}.to_json
+end
+
+get '/:image_href_encoded/html' do |image_href_encoded|
   image_href = Base64.urlsafe_decode64 image_href_encoded
   content_type :html
   puts "HREF: #{image_href}"
@@ -115,13 +124,3 @@ end
 get '/favicon.ico' do
   ''
 end
-
-get '/:image_name_encoded' do |image_href_encoded|
-  image_href = Base64.urlsafe_decode64 image_href_encoded
-  content_type :json
-  puts "HREF: #{image_href}"
-  post_href = image_to_post[image_href]
-  blog_href = post_to_blog[post_href]
-  { href: image_href, post: { href: post_href }, blog: { href: blog_href }}.to_json
-end
-
