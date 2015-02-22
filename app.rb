@@ -18,26 +18,6 @@ IMAGE_STASHER_URL = ENV['IMAGE_STASHER_URL']
 CONNSTRING = ENV['EVENTSTORE_URL'] || 'http://0.0.0.0:2113'
 eventstore = EventStore::Client.new(CONNSTRING)
 
-def events_with_sleep eventstore, stream, start_at, set_size, sleep_time=100
-  Enumerator.new do |yielder|
-    start_at = 0
-    last_start_at = nil
-    begin
-      loop do
-        if last_start_at == start_at
-          sleep sleep_time
-        end
-        last_start_at = start_at
-        events = eventstore.resume_read(stream, start_at, set_size)
-        events.each do |event|
-          yielder << event
-          start_at = event[:id]
-        end
-      end
-    end
-  end
-end
-
 Thread.new do
   EventStore::Util.poll(eventstore, 'new-images').each do |event|
     next if event[:body]['post'].nil?
