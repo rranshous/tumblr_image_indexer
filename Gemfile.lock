@@ -5,7 +5,7 @@ GEM
     cql-rb (2.0.4)
       ione (~> 1)
     curb (0.8.6)
-    eventstore (0.1.0)
+    eventstore (0.1.5)
       cql-rb (~> 2.0)
       feedjira (~> 1.6)
       httparty (~> 0.13)
@@ -53,7 +53,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  eventstore
+  eventstore (~> 0.1)
   pry
   sinatra
   thread_safe

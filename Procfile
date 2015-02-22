@@ -1,1 +1,1 @@
-web: bundle exec ruby app.rb -p $PORT
+tumblr_image_indexer: bundle exec ruby app.rb -p $PORT

@@ -3,6 +3,8 @@ require 'thread_safe'
 require 'eventstore'
 require 'base64'
 
+Thread.abort_on_exception = true
+
 # we want to be able to answer the question
 #  what blog + post did this image come from?
 
@@ -36,18 +38,16 @@ def events_with_sleep eventstore, stream, start_at, set_size, sleep_time=100
   end
 end
 
-Thread.abort_on_exception = true
-
 Thread.new do
-  events_with_sleep(eventstore, 'new-images', 0, 100).each do |event|
-    puts "image EVENT: #{event[:body]['href']} :: #{event[:id]}"
+  EventStore::Util.poll(eventstore, 'new-images').each do |event|
+    next if event[:body]['post'].nil?
     image_to_post[event[:body]['href']] = event[:body]['post']['href']
     (post_to_images[event[:body]['post']['href']] ||= []) << event[:body]['href']
   end
 end
 
 Thread.new do
-  events_with_sleep(eventstore, 'new-posts', 0, 100).each do |event|
+  EventStore::Util.poll(eventstore, 'new-posts').each do |event|
     post_to_blog[event[:body]['href']] = event[:body]['blog']['href']
     (blog_to_posts[event[:body]['blog']['href']] ||= []) << event[:body]['href']
   end
